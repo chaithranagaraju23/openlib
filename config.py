@@ -8,7 +8,12 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 def _normalize_database_url(url):
     """Normalize Render/Heroku postgres:// URI for SQLAlchemy 2.x."""
-    if url and url.startswith('postgres://'):
+    if not url:
+        return None
+    url = url.strip()
+    if not url:
+        return None
+    if url.startswith('postgres://'):
         return url.replace('postgres://', 'postgresql://', 1)
     return url
 
