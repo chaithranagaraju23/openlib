@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Profile &amp; Accessibility – OpenLib{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="ol-card p-4 p-md-5">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h1 class="h3 fw-bold mb-1">Profile &amp; Accessibility Preferences</h1>
+                        <p class="small text-muted mb-0">Account: <strong>@{{ current_user.username }}</strong> ({{ current_user.email }})</p>
+                    </div>
+                    <a href="{{ url_for('user.change_password') }}" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-key me-1"></i>Change Password
+                    </a>
+                </div>
+
+                <form method="post">
+                    {{ form.hidden_tag() }}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            {{ form.full_name.label(class="form-label fw-semibold") }}
+                            {{ form.full_name(class="form-control") }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.preferred_language.label(class="form-label fw-semibold") }}
+                            {{ form.preferred_language(class="form-select") }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.preferred_age_group.label(class="form-label fw-semibold") }}
+                            {{ form.preferred_age_group(class="form-select") }}
+                        </div>
+                        <div class="col-12">
+                            {{ form.bio.label(class="form-label fw-semibold") }}
+                            {{ form.bio(class="form-control", rows=3) }}
+                        </div>
+
+                        <div class="col-12 mt-4">
+                            <h2 class="h6 fw-bold mb-3">Accessibility &amp; Comfort Settings</h2>
+                            <div class="row g-2 bg-light p-3 rounded-3 border">
+                                <div class="col-md-6 form-check">
+                                    {{ form.large_text(class="form-check-input ms-0 me-2") }}
+                                    {{ form.large_text.label(class="form-check-label") }}
+                                </div>
+                                <div class="col-md-6 form-check">
+                                    {{ form.high_contrast(class="form-check-input ms-0 me-2") }}
+                                    {{ form.high_contrast.label(class="form-check-label") }}
+                                </div>
+                                <div class="col-md-6 form-check">
+                                    {{ form.text_to_speech(class="form-check-input ms-0 me-2") }}
+                                    {{ form.text_to_speech.label(class="form-check-label") }}
+                                </div>
+                                <div class="col-md-6 form-check">
+                                    {{ form.night_mode(class="form-check-input ms-0 me-2") }}
+                                    {{ form.night_mode.label(class="form-check-label") }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 mt-4">
+                            {{ form.submit(class="btn btn-openlib") }}
+                            <a href="{{ url_for('user.dashboard') }}" class="btn btn-outline-secondary ms-2">Back to Dashboard</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Borrows &amp; Exchanges – Admin – OpenLib{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="h2 fw-bold mb-3">Borrowing &amp; Exchange Activity</h1>
+    {% include "admin/_nav.html" %}
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="ol-card p-3">
+                <h2 class="h6 fw-bold mb-3">Borrow Records ({{ borrows|length }})</h2>
+                {% if borrows %}
+                <div class="table-responsive">
+                    <table class="table table-sm small mb-0">
+                        <thead><tr><th>Member</th><th>Book</th><th>Status</th><th>Due Date</th></tr></thead>
+                        <tbody>
+                            {% for b in borrows %}
+                            <tr>
+                                <td>@{{ b.user.username }}</td>
+                                <td>{{ b.book.title }}</td>
+                                <td><span class="badge bg-{{ 'primary' if b.status == 'borrowed' else 'success' }}">{{ b.status }}</span></td>
+                                <td>{{ b.due_date|format_date }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="small text-muted mb-0">No borrow records yet.</p>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="ol-card p-3">
+                <h2 class="h6 fw-bold mb-3">Community Exchange Requests ({{ exchanges|length }})</h2>
+                {% if exchanges %}
+                <div class="table-responsive">
+                    <table class="table table-sm small mb-0">
+                        <thead><tr><th>Requester</th><th>Owner</th><th>Offered Book</th><th>Status</th></tr></thead>
+                        <tbody>
+                            {% for ex in exchanges %}
+                            <tr>
+                                <td>@{{ ex.requester.username }}</td>
+                                <td>@{{ ex.owner.username }}</td>
+                                <td>{{ ex.offered_book_title }}</td>
+                                <td><span class="badge bg-info text-dark">{{ ex.status }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="small text-muted mb-0">No exchange requests yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

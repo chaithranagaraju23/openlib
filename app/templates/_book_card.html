@@ -1,0 +1,41 @@
+{% macro render_book_card(book, theme_class='') %}
+<div class="book-card {{ theme_class }}">
+    <a href="{{ url_for('books.details', book_id=book.id) }}" class="book-card-cover-wrap text-decoration-none">
+        <img src="{{ book.get_cover_url() }}" alt="{{ book.title }} cover" loading="lazy"
+             onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/default_cover.svg') }}';">
+        {% if book.age_group %}
+        <span class="book-card-badge bg-white text-dark border shadow-sm">
+            {{ book.age_group.name }}
+        </span>
+        {% endif %}
+    </a>
+    <div class="book-card-body">
+        <div class="d-flex justify-content-between align-items-center gap-1 mb-1">
+            <span class="badge bg-light text-secondary border small">{{ book.language }}</span>
+            {% if book.average_rating and book.average_rating > 0 %}
+            <span class="small text-warning fw-semibold">
+                <i class="bi bi-star-fill"></i> {{ '%.1f'|format(book.average_rating) }}
+            </span>
+            {% endif %}
+        </div>
+        <a href="{{ url_for('books.details', book_id=book.id) }}" class="text-decoration-none text-dark">
+            <h3 class="book-card-title">{{ book.title }}</h3>
+        </a>
+        <p class="book-card-author text-truncate">{{ book.author }}</p>
+        {% if book.category %}
+        <div class="small text-muted mb-2 text-truncate">
+            <i class="bi bi-tag me-1"></i>{{ book.category.name }}
+        </div>
+        {% endif %}
+        <div class="book-card-footer">
+            <a href="{{ url_for('books.details', book_id=book.id) }}" class="btn btn-sm btn-outline-secondary">Details</a>
+            {% if book.is_readable_online %}
+            <a href="{{ url_for('books.read', book_id=book.id) }}" class="btn btn-sm btn-openlib">
+                <i class="bi bi-book-half me-1"></i>Read
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endmacro %}
+

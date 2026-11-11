@@ -1,0 +1,24 @@
+<div class="d-flex flex-wrap gap-2 mb-4 pb-3 border-bottom">
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-sm {% if request.endpoint == 'admin.dashboard' %}btn-openlib{% else %}btn-outline-secondary{% endif %}">
+        <i class="bi bi-speedometer2 me-1"></i>Overview
+    </a>
+    <a href="{{ url_for('admin.books') }}" class="btn btn-sm {% if request.endpoint in ('admin.books','admin.add_book','admin.edit_book') %}btn-openlib{% else %}btn-outline-secondary{% endif %}">
+        <i class="bi bi-book me-1"></i>Manage Books
+    </a>
+    <a href="{{ url_for('admin.catalogue') }}" class="btn btn-sm {% if request.endpoint == 'admin.catalogue' %}btn-openlib{% else %}btn-outline-secondary{% endif %}">
+        <i class="bi bi-file-earmark-spreadsheet me-1"></i>Import &amp; Reports
+    </a>
+    <a href="{{ url_for('admin.donations') }}" class="btn btn-sm {% if request.endpoint == 'admin.donations' %}btn-openlib{% else %}btn-outline-secondary{% endif %}">
+        <i class="bi bi-gift me-1"></i>Donations
+    </a>
+    <a href="{{ url_for('admin.users') }}" class="btn btn-sm {% if request.endpoint == 'admin.users' %}btn-openlib{% else %}btn-outline-secondary{% endif %}">
+        <i class="bi bi-people me-1"></i>Users
+    </a>
+    <a href="{{ url_for('admin.transactions') }}" class="btn btn-sm {% if request.endpoint == 'admin.transactions' %}btn-openlib{% else %}btn-outline-secondary{% endif %}">
+        <i class="bi bi-arrow-left-right me-1"></i>Borrows &amp; Exchanges
+    </a>
+    <a href="{{ url_for('admin.messages') }}" class="btn btn-sm {% if request.endpoint == 'admin.messages' %}btn-openlib{% else %}btn-outline-secondary{% endif %}">
+        <i class="bi bi-envelope me-1"></i>Messages
+    </a>
+</div>
+

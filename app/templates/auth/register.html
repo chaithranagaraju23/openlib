@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Join Free – OpenLib{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="ol-card p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <img src="{{ url_for('static', filename='images/openlib_logo.svg') }}" alt="OpenLib" width="48" height="48">
+                    <h1 class="h3 fw-bold mt-3 mb-1">Create Your Free Library Card</h1>
+                    <p class="small text-muted">One account gives you access to all four generations, reading progress, and book exchanges.</p>
+                </div>
+
+                <form method="post" novalidate>
+                    {{ form.hidden_tag() }}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            {{ form.full_name.label(class="form-label fw-semibold") }}
+                            {{ form.full_name(class="form-control") }}
+                            {% for err in form.full_name.errors %}<div class="text-danger small mt-1">{{ err }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.username.label(class="form-label fw-semibold") }}
+                            {{ form.username(class="form-control") }}
+                            {% for err in form.username.errors %}<div class="text-danger small mt-1">{{ err }}</div>{% endfor %}
+                        </div>
+                        <div class="col-12">
+                            {{ form.email.label(class="form-label fw-semibold") }}
+                            {{ form.email(class="form-control") }}
+                            {% for err in form.email.errors %}<div class="text-danger small mt-1">{{ err }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.preferred_age_group.label(class="form-label fw-semibold") }}
+                            {{ form.preferred_age_group(class="form-select") }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.preferred_language.label(class="form-label fw-semibold") }}
+                            {{ form.preferred_language(class="form-select") }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.password.label(class="form-label fw-semibold") }}
+                            {{ form.password(class="form-control") }}
+                            {% for err in form.password.errors %}<div class="text-danger small mt-1">{{ err }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.confirm_password.label(class="form-label fw-semibold") }}
+                            {{ form.confirm_password(class="form-control") }}
+                            {% for err in form.confirm_password.errors %}<div class="text-danger small mt-1">{{ err }}</div>{% endfor %}
+                        </div>
+                        <div class="col-12 mt-3 d-grid">
+                            {{ form.submit(class="btn btn-openlib btn-lg") }}
+                        </div>
+                    </div>
+                </form>
+
+                <hr class="my-4">
+                <p class="text-center small text-muted mb-0">
+                    Already have an account? <a href="{{ url_for('auth.login') }}" class="fw-semibold">Sign In</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

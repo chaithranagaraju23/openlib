@@ -1,0 +1,191 @@
+{% from "_book_card.html" import render_book_card %}
+
+{% macro render_generation_page(
+    age_group,
+    categories_with_counts,
+    selected_category,
+    books,
+    pagination,
+    total_in_section,
+    languages,
+    q,
+    selected_language,
+    sort_by,
+    banner_class,
+    card_class,
+    base_endpoint,
+    cat_endpoint,
+    scope_class='',
+    is_seniors=false,
+    is_children=false,
+    is_youth=false
+) %}
+<div class="{{ scope_class }}">
+    <!-- Generation Hero Banner -->
+    <section class="gen-banner {{ banner_class }}">
+        <div class="container">
+            <div class="row align-items-center g-4">
+                <div class="col-lg-8">
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                        <span class="badge bg-white text-dark border px-3 py-2">
+                            <i class="bi {{ age_group.icon }} me-1"></i>
+                            Recommended Ages {{ age_group.min_age }}–{% if age_group.max_age >= 100 %}+{% else %}{{ age_group.max_age }}{% endif %}
+                        </span>
+                        <span class="badge bg-dark text-white px-3 py-2">
+                            {{ total_in_section }} Verified Books
+                        </span>
+                    </div>
+                    <h1 class="display-6 fw-bold mb-2">{{ age_group.display_name }}</h1>
+                    <p id="generationIntroText" class="lead mb-3">{{ age_group.description }}</p>
+                    <p class="small text-muted mb-0">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Age groups are helpful recommendations — all OpenLib readers may explore any section freely.
+                    </p>
+
+                    {% if is_seniors %}
+                    <div class="d-flex flex-wrap gap-2 mt-4">
+                        <button type="button" class="btn btn-openlib btn-lg" data-tts-target="#generationIntroText">
+                            <i class="bi bi-volume-up-fill me-2"></i>Listen to Overview
+                        </button>
+                        <button type="button" class="btn btn-outline-dark btn-lg" data-tts-stop>
+                            <i class="bi bi-stop-circle me-2"></i>Stop Audio
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-lg" data-a11y-toggle="large_text">
+                            <i class="bi bi-fonts me-2"></i>Extra Large Text
+                        </button>
+                        <button type="button" class="btn btn-dark btn-lg" data-a11y-toggle="high_contrast">
+                            <i class="bi bi-circle-half me-2"></i>High Contrast
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="ol-card p-3 bg-white">
+                        <form method="get" action="{{ url_for(cat_endpoint, slug=selected_category.slug) if selected_category else url_for(base_endpoint) }}">
+                            <label class="form-label fw-semibold small">Search inside {{ age_group.display_name }}</label>
+                            <div class="input-group mb-2">
+                                <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Title, author, topic...">
+                                <button type="submit" class="btn btn-openlib">Go</button>
+                            </div>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <select name="language" class="form-select form-select-sm" onchange="this.form.submit()">
+                                        <option value="">All Languages</option>
+                                        {% for lang in languages %}
+                                        <option value="{{ lang }}" {% if selected_language == lang %}selected{% endif %}>{{ lang }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <select name="sort" class="form-select form-select-sm" onchange="this.form.submit()">
+                                        <option value="popular" {% if sort_by == 'popular' %}selected{% endif %}>Popular</option>
+                                        <option value="alphabetical" {% if sort_by == 'alphabetical' %}selected{% endif %}>A–Z</option>
+                                        <option value="recent" {% if sort_by == 'recent' %}selected{% endif %}>Newest</option>
+                                        <option value="rating" {% if sort_by == 'rating' %}selected{% endif %}>Top Rated</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Navigation -->
+    <section class="py-4 bg-white border-bottom">
+        <div class="container">
+            <div class="d-flex flex-wrap align-items-center justify-content-between mb-3 gap-2">
+                <h2 class="h5 fw-bold mb-0">
+                    Categories ({{ categories_with_counts|length }})
+                </h2>
+                {% if selected_category %}
+                <a href="{{ url_for(base_endpoint) }}" class="btn btn-sm btn-outline-secondary">
+                    Show All {{ total_in_section }} Books
+                </a>
+                {% endif %}
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{{ url_for(base_endpoint) }}"
+                   class="category-chip {% if not selected_category %}active{% endif %}">
+                    <i class="bi bi-grid-fill"></i>
+                    <span>All</span>
+                    <span class="badge bg-light text-dark border">{{ total_in_section }}</span>
+                </a>
+                {% for cat, cnt in categories_with_counts %}
+                <a href="{{ url_for(cat_endpoint, slug=cat.slug) }}"
+                   class="category-chip {% if selected_category and selected_category.id == cat.id %}active{% endif %}">
+                    <i class="bi {{ cat.icon }}"></i>
+                    <span>{{ cat.name }}</span>
+                    <span class="badge bg-light text-dark border">{{ cnt }}</span>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Books Grid -->
+    <section class="py-5">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="h4 fw-bold mb-1">
+                        {% if selected_category %}{{ selected_category.name }}{% else %}All {{ age_group.display_name }} Books{% endif %}
+                    </h2>
+                    <p class="small text-muted mb-0">
+                        {% if selected_category %}{{ selected_category.description }} &middot; {% endif %}
+                        Showing {{ pagination.total }} verified books
+                    </p>
+                </div>
+            </div>
+
+            {% if books %}
+            <div class="row g-4">
+                {% for book in books %}
+                <div class="col-6 col-md-4 col-lg-3">
+                    {{ render_book_card(book, theme_class=card_class) }}
+                </div>
+                {% endfor %}
+            </div>
+
+            {% if pagination.pages > 1 %}
+            <nav aria-label="Section pagination" class="mt-5">
+                <ul class="pagination justify-content-center flex-wrap">
+                    <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                        {% if pagination.has_prev %}
+                        <a class="page-link" href="{{ url_for(cat_endpoint, slug=selected_category.slug, page=pagination.prev_num, q=q or None, language=selected_language or None, sort=sort_by) if selected_category else url_for(base_endpoint, page=pagination.prev_num, q=q or None, language=selected_language or None, sort=sort_by) }}">Previous</a>
+                        {% else %}
+                        <a class="page-link" href="#">Previous</a>
+                        {% endif %}
+                    </li>
+                    {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                        {% if p %}
+                        <li class="page-item {% if p == pagination.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for(cat_endpoint, slug=selected_category.slug, page=p, q=q or None, language=selected_language or None, sort=sort_by) if selected_category else url_for(base_endpoint, page=p, q=q or None, language=selected_language or None, sort=sort_by) }}">{{ p }}</a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+                        {% endif %}
+                    {% endfor %}
+                    <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                        {% if pagination.has_next %}
+                        <a class="page-link" href="{{ url_for(cat_endpoint, slug=selected_category.slug, page=pagination.next_num, q=q or None, language=selected_language or None, sort=sort_by) if selected_category else url_for(base_endpoint, page=pagination.next_num, q=q or None, language=selected_language or None, sort=sort_by) }}">Next</a>
+                        {% else %}
+                        <a class="page-link" href="#">Next</a>
+                        {% endif %}
+                    </li>
+                </ul>
+            </nav>
+            {% endif %}
+            {% else %}
+            <div class="ol-card p-5 text-center">
+                <i class="bi bi-book display-4 text-muted"></i>
+                <h3 class="h5 mt-3">No books matched your filter</h3>
+                <a href="{{ url_for(base_endpoint) }}" class="btn btn-openlib mt-2">Clear Filter</a>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+</div>
+{% endmacro %}

@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}My Reader Dashboard – OpenLib{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <h1 class="h2 fw-bold mb-1">Welcome, {{ current_user.full_name or current_user.username }}</h1>
+            <p class="text-muted mb-0">Manage your active loans, reading progress, saved books, donations, and exchanges.</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{{ url_for('books.search') }}" class="btn btn-openlib"><i class="bi bi-search me-1"></i>Find Books</a>
+            <a href="{{ url_for('user.profile') }}" class="btn btn-outline-secondary"><i class="bi bi-sliders me-1"></i>Preferences</a>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+            <div class="ol-card p-3">
+                <div class="small text-muted">Active Borrowed Books</div>
+                <div class="fs-3 fw-bold text-primary">{{ active_borrows|length }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="ol-card p-3">
+                <div class="small text-muted">Saved Reading List</div>
+                <div class="fs-3 fw-bold text-success">{{ bookmarks|length }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="ol-card p-3">
+                <div class="small text-muted">Pending Exchange Inbox</div>
+                <div class="fs-3 fw-bold text-warning">{{ incoming_exchanges|length }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="ol-card p-3">
+                <div class="small text-muted">My Donations &amp; Reviews</div>
+                <div class="fs-3 fw-bold text-info">{{ donations|length }} / {{ reviews_count }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Active Loans -->
+        <div class="col-lg-7">
+            <div class="ol-card p-4 h-100">
+                <h2 class="h5 fw-bold mb-3"><i class="bi bi-journal-bookmark me-2 text-primary"></i>Currently Borrowed Books</h2>
+                {% if active_borrows %}
+                <div class="d-grid gap-3">
+                    {% for rec in active_borrows %}
+                    <div class="border rounded-3 p-3 bg-light">
+                        <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                            <div>
+                                <a href="{{ url_for('books.details', book_id=rec.book.id) }}" class="fw-bold">{{ rec.book.title }}</a>
+                                <div class="small text-muted">by {{ rec.book.author }}</div>
+                                <div class="small mt-1">
+                                    Due: <strong>{{ rec.due_date|format_date }}</strong>
+                                    {% if rec.is_overdue() %}
+                                    <span class="badge bg-danger ms-1">Overdue</span>
+                                    {% else %}
+                                    <span class="badge bg-success-subtle text-success ms-1">{{ rec.days_remaining() }} days left</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a href="{{ url_for('books.read', book_id=rec.book.id) }}" class="btn btn-sm btn-openlib">Read</a>
+                                <form method="post" action="{{ url_for('books.renew_book', book_id=rec.book.id) }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">Renew</button>
+                                </form>
+                                <form method="post" action="{{ url_for('books.return_book', book_id=rec.book.id) }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="next" value="{{ url_for('user.dashboard') }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-success">Return</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted small mb-0">You have no active borrowed books. Explore the library to borrow up to 5 titles at once.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Continue Reading Progress -->
+        <div class="col-lg-5">
+            <div class="ol-card p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="h5 fw-bold mb-0"><i class="bi bi-clock-history me-2 text-success"></i>Continue Reading</h2>
+                    <a href="{{ url_for('user.reading_list') }}" class="small">View All</a>
+                </div>
+                {% if progress_list %}
+                <div class="d-grid gap-3">
+                    {% for prog in progress_list %}
+                    <div class="border-bottom pb-2">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <a href="{{ url_for('books.read', book_id=prog.book.id) }}" class="fw-semibold small text-truncate">{{ prog.book.title }}</a>
+                            <span class="small text-muted">{{ '%.0f'|format(prog.percentage) }}%</span>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-success" style="width: {{ prog.percentage }}%;"></div>
+                        </div>
+                        <small class="text-muted">Page {{ prog.current_page }} of {{ prog.total_pages or '?' }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted small mb-0">Open any book in the online reader to track your reading progress automatically.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Saved Bookmarks -->
+        <div class="col-lg-6">
+            <div class="ol-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="h5 fw-bold mb-0"><i class="bi bi-bookmark-heart me-2 text-warning"></i>Saved Reading List</h2>
+                    <a href="{{ url_for('user.reading_list') }}" class="small">Manage</a>
+                </div>
+                {% if bookmarks %}
+                <ul class="list-group list-group-flush">
+                    {% for bm in bookmarks[:5] %}
+                    <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                        <div>
+                            <a href="{{ url_for('books.details', book_id=bm.book.id) }}" class="fw-semibold small">{{ bm.book.title }}</a>
+                            <div class="small text-muted">{{ bm.book.author }}</div>
+                        </div>
+                        <a href="{{ url_for('books.read', book_id=bm.book.id) }}" class="btn btn-sm btn-outline-primary">Read</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted small mb-0">No bookmarked books yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quick Links: Exchanges & Donations -->
+        <div class="col-lg-6">
+            <div class="ol-card p-4">
+                <h2 class="h5 fw-bold mb-3"><i class="bi bi-people me-2 text-info"></i>Community Activity</h2>
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('user.exchanges') }}" class="btn btn-outline-secondary text-start d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-arrow-left-right me-2"></i>Manage My Book Exchanges</span>
+                        <span class="badge bg-primary">{{ incoming_exchanges|length }} pending</span>
+                    </a>
+                    <a href="{{ url_for('user.donations') }}" class="btn btn-outline-secondary text-start d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-gift me-2"></i>Track My Book Donations</span>
+                        <span class="badge bg-success">{{ donations|length }} submitted</span>
+                    </a>
+                    <a href="{{ url_for('main.donate') }}" class="btn btn-openlib-accent text-start">
+                        <i class="bi bi-plus-circle me-2"></i>Donate Another Book
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

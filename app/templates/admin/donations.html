@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Manage Donations – Admin – OpenLib{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="h2 fw-bold mb-3">Book Donations Queue</h1>
+    {% include "admin/_nav.html" %}
+
+    <div class="ol-card p-3">
+        {% if donations %}
+        <div class="table-responsive">
+            <table class="table align-middle small mb-0">
+                <thead>
+                    <tr>
+                        <th>Book</th>
+                        <th>Donor</th>
+                        <th>Type &amp; Licence</th>
+                        <th>Source URL</th>
+                        <th>Status</th>
+                        <th class="text-end">Review</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in donations %}
+                    <tr>
+                        <td><strong>{{ d.book_title }}</strong><div class="text-muted">{{ d.book_author }} ({{ d.age_group_name }})</div></td>
+                        <td>{{ d.donor_name }}<div class="text-muted">{{ d.donor_email }}</div></td>
+                        <td>{{ 'Digital' if d.is_digital else 'Physical' }}<div class="text-muted">{{ d.licence }}</div></td>
+                        <td>
+                            {% if d.source_url %}
+                            <a href="{{ d.source_url }}" target="_blank" rel="noopener">Check Source</a>
+                            {% else %}-{% endif %}
+                        </td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if d.status == 'accepted' else 'danger' if d.status == 'rejected' else 'warning text-dark' }}">
+                                {{ d.status|title }}
+                            </span>
+                        </td>
+                        <td class="text-end text-nowrap">
+                            {% if d.status == 'pending' %}
+                            <form method="post" action="{{ url_for('admin.handle_donation', donation_id=d.id, action='accept') }}" class="d-inline">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-sm btn-success">Accept</button>
+                            </form>
+                            <form method="post" action="{{ url_for('admin.handle_donation', donation_id=d.id, action='reject') }}" class="d-inline">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Reject</button>
+                            </form>
+                            {% else %}
+                            <span class="text-muted">Reviewed</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted mb-0 p-3">No donations in queue.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

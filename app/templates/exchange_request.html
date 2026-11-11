@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Propose Book Exchange – OpenLib{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="ol-card p-4 p-md-5">
+                <h1 class="h3 fw-bold mb-3">Propose a Book Exchange</h1>
+                <div class="bg-light border rounded-3 p-3 mb-4">
+                    <div class="small text-muted">Requesting Book From <strong>{{ listing.owner.username }}</strong> ({{ listing.location }})</div>
+                    <div class="fw-bold fs-5">{{ listing.title }}</div>
+                    <div class="small text-muted">by {{ listing.author }} &middot; Condition: {{ listing.condition }}</div>
+                </div>
+
+                <form method="post">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.offered_book_title.label(class="form-label fw-semibold") }}
+                        {{ form.offered_book_title(class="form-control") }}
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-7">
+                            {{ form.offered_book_author.label(class="form-label fw-semibold") }}
+                            {{ form.offered_book_author(class="form-control") }}
+                        </div>
+                        <div class="col-md-5">
+                            {{ form.offered_book_condition.label(class="form-label fw-semibold") }}
+                            {{ form.offered_book_condition(class="form-select") }}
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        {{ form.message.label(class="form-label fw-semibold") }}
+                        {{ form.message(class="form-control", rows=4, placeholder="Introduce yourself and propose meetup or postal swap details...") }}
+                    </div>
+                    <div class="d-flex gap-2">
+                        {{ form.submit(class="btn btn-openlib") }}
+                        <a href="{{ url_for('main.exchange') }}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

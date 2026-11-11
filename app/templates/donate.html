@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}Donate a Book – OpenLib{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row g-5">
+        <div class="col-lg-8">
+            <div class="ol-card p-4 p-md-5">
+                <span class="badge bg-success-subtle text-success mb-2">Community Contributions</span>
+                <h1 class="h2 fw-bold mb-2">Donate a Book to OpenLib</h1>
+                <p class="text-muted mb-4">
+                    Share openly licensed digital resources (Public Domain, Creative Commons, or your own original writing) or pledge physical books for community readers.
+                </p>
+
+                <form method="post" enctype="multipart/form-data" novalidate>
+                    {{ form.hidden_tag() }}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            {{ form.donor_name.label(class="form-label fw-semibold") }}
+                            {{ form.donor_name(class="form-control") }}
+                            {% for err in form.donor_name.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.donor_email.label(class="form-label fw-semibold") }}
+                            {{ form.donor_email(class="form-control") }}
+                            {% for err in form.donor_email.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+                        </div>
+                        <div class="col-12">
+                            {{ form.donation_type.label(class="form-label fw-semibold") }}
+                            {{ form.donation_type(class="form-select") }}
+                        </div>
+                        <div class="col-md-8">
+                            {{ form.book_title.label(class="form-label fw-semibold") }}
+                            {{ form.book_title(class="form-control") }}
+                            {% for err in form.book_title.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.book_language.label(class="form-label fw-semibold") }}
+                            {{ form.book_language(class="form-control") }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.book_author.label(class="form-label fw-semibold") }}
+                            {{ form.book_author(class="form-control") }}
+                            {% for err in form.book_author.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-3">
+                            {{ form.age_group_name.label(class="form-label fw-semibold") }}
+                            {{ form.age_group_name(class="form-select") }}
+                        </div>
+                        <div class="col-md-3">
+                            {{ form.book_category.label(class="form-label fw-semibold") }}
+                            {{ form.book_category(class="form-control", placeholder="e.g. Moral Stories") }}
+                            {% for err in form.book_category.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+                        </div>
+                        <div class="col-12">
+                            {{ form.book_description.label(class="form-label fw-semibold") }}
+                            {{ form.book_description(class="form-control", rows=3) }}
+                            {% for err in form.book_description.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.isbn.label(class="form-label fw-semibold") }}
+                            {{ form.isbn(class="form-control") }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.publication_year.label(class="form-label fw-semibold") }}
+                            {{ form.publication_year(class="form-control") }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.publisher.label(class="form-label fw-semibold") }}
+                            {{ form.publisher(class="form-control") }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.licence.label(class="form-label fw-semibold") }}
+                            {{ form.licence(class="form-control", placeholder="e.g. Public Domain / CC BY 4.0") }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.book_condition.label(class="form-label fw-semibold") }}
+                            {{ form.book_condition(class="form-select") }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.source_url.label(class="form-label fw-semibold") }}
+                            {{ form.source_url(class="form-control", placeholder="https://...") }}
+                            {% for err in form.source_url.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.file_url.label(class="form-label fw-semibold") }}
+                            {{ form.file_url(class="form-control", placeholder="https://...") }}
+                            {% for err in form.file_url.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+                        </div>
+                        <div class="col-12">
+                            {{ form.pdf_file.label(class="form-label fw-semibold") }}
+                            {{ form.pdf_file(class="form-control") }}
+                            {% for err in form.pdf_file.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+                        </div>
+                        <div class="col-12">
+                            {{ form.shipping_address.label(class="form-label fw-semibold") }}
+                            {{ form.shipping_address(class="form-control", rows=2, placeholder="Optional city / pickup notes for physical books") }}
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check p-3 bg-light border rounded-3">
+                                {{ form.copyright_confirmation(class="form-check-input ms-0 me-2") }}
+                                {{ form.copyright_confirmation.label(class="form-check-label small fw-semibold") }}
+                                {% for err in form.copyright_confirmation.errors %}<div class="text-danger small mt-1">{{ err }}</div>{% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            {{ form.submit(class="btn btn-openlib btn-lg px-4") }}
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="ol-card p-4 mb-4">
+                <h2 class="h5 fw-bold mb-2">Donation Guidelines</h2>
+                <ul class="small text-muted ps-3 mb-0 d-grid gap-2">
+                    <li>Only submit digital books in the <strong>Public Domain</strong>, under a <strong>Creative Commons</strong> licence, or authored by you.</li>
+                    <li>Provide a verifiable official source URL whenever available.</li>
+                    <li>Every submission is reviewed by our librarians before entering the public catalogue.</li>
+                </ul>
+            </div>
+
+            <div class="ol-card p-4">
+                <h2 class="h5 fw-bold mb-3">Community Impact ({{ total_accepted }} Accepted)</h2>
+                {% if recent_accepted %}
+                    <ul class="list-group list-group-flush">
+                        {% for d in recent_accepted %}
+                        <li class="list-group-item px-0">
+                            <div class="fw-semibold small">{{ d.book_title }}</div>
+                            <div class="text-muted small">Donated by {{ d.donor_name }}</div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="small text-muted mb-0">Be among the first community donors to expand OpenLib!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

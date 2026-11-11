@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}About OpenLib – Mission & Licensing Standards{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row g-4 align-items-center mb-5">
+        <div class="col-lg-7">
+            <span class="ol-tagline-pill mb-3">{{ app_tagline }}</span>
+            <h1 class="display-6 fw-bold mb-3">Making Knowledge Free for Every Generation</h1>
+            <p class="lead text-muted">
+                OpenLib is a public-interest digital library and community book exchange platform built so children, students, adults, and senior citizens can read, learn, and share books without financial barriers.
+            </p>
+        </div>
+        <div class="col-lg-5">
+            <div class="ol-card p-4">
+                <h2 class="h5 fw-bold mb-3">Live Catalogue Transparency</h2>
+                <div class="row g-3 text-center">
+                    <div class="col-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <div class="fs-3 fw-bold text-primary">{{ stats.total_books }}</div>
+                            <div class="small text-muted">Verified Books</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <div class="fs-3 fw-bold text-success">{{ stats.total_categories }}</div>
+                            <div class="small text-muted">Categories</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <div class="fs-3 fw-bold text-info">{{ stats.total_languages }}</div>
+                            <div class="small text-muted">Languages</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <div class="fs-3 fw-bold text-warning">{{ stats.total_donations }}</div>
+                            <div class="small text-muted">Accepted Donations</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="ol-card p-4 h-100">
+                <i class="bi bi-patch-check fs-2 text-primary mb-2"></i>
+                <h3 class="h5 fw-bold">Verified Sources Only</h3>
+                <p class="small text-muted mb-0">
+                    Every book in OpenLib carries an explicit source URL, repository attribution, copyright status, and licence verification record. When redistribution is restricted, OpenLib links respectfully to the official reading or lending page.
+                </p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="ol-card p-4 h-100">
+                <i class="bi bi-universal-access fs-2 text-success mb-2"></i>
+                <h3 class="h5 fw-bold">Inclusive &amp; Accessible</h3>
+                <p class="small text-muted mb-0">
+                    Built with Large Text, High Contrast, Night Mode, keyboard navigation, and Web Speech Text-to-Speech so readers of all ages and abilities feel at home.
+                </p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="ol-card p-4 h-100">
+                <i class="bi bi-arrow-left-right fs-2 text-warning mb-2"></i>
+                <h3 class="h5 fw-bold">Community Donations &amp; Swaps</h3>
+                <p class="small text-muted mb-0">
+                    Readers can donate openly licensed digital works or physical copies and exchange books directly with neighbours and fellow learners.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    {% if stats.repo_counts %}
+    <div class="ol-card p-4">
+        <h2 class="h5 fw-bold mb-3">Legitimate Book Sources Represented</h2>
+        <div class="row g-3">
+            {% for repo, cnt in stats.repo_counts %}
+            <div class="col-sm-6 col-md-4 col-lg-3">
+                <div class="border rounded-3 p-3 bg-light d-flex justify-content-between align-items-center">
+                    <span class="fw-semibold small">{{ repo or 'Verified Repository' }}</span>
+                    <span class="badge bg-primary">{{ cnt }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

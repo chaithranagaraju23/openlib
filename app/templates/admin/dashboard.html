@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard – OpenLib{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+        <div>
+            <h1 class="h2 fw-bold mb-1">OpenLib Administration</h1>
+            <p class="text-muted small mb-0">Live database counts, verification coverage, donations, and community activity.</p>
+        </div>
+        <a href="{{ url_for('admin.add_book') }}" class="btn btn-openlib">
+            <i class="bi bi-plus-lg me-1"></i>Add Book
+        </a>
+    </div>
+
+    {% include "admin/_nav.html" %}
+
+    <!-- Real Metrics Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-4 col-lg-2">
+            <div class="ol-card p-3">
+                <div class="small text-muted">Verified Books</div>
+                <div class="fs-3 fw-bold text-primary">{{ stats.total_books }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+            <div class="ol-card p-3">
+                <div class="small text-muted">Members</div>
+                <div class="fs-3 fw-bold text-dark">{{ stats.total_users }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+            <div class="ol-card p-3">
+                <div class="small text-muted">Active Borrows</div>
+                <div class="fs-3 fw-bold text-info">{{ stats.active_borrows }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+            <div class="ol-card p-3">
+                <div class="small text-muted">Pending Donations</div>
+                <div class="fs-3 fw-bold text-warning">{{ stats.pending_donations }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+            <div class="ol-card p-3">
+                <div class="small text-muted">Active Exchanges</div>
+                <div class="fs-3 fw-bold text-success">{{ stats.active_exchanges }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+            <div class="ol-card p-3">
+                <div class="small text-muted">Unread Messages</div>
+                <div class="fs-3 fw-bold text-danger">{{ stats.unread_messages }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generation Quotas & Real DB Counts -->
+    <div class="ol-card p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h5 fw-bold mb-0">Four Generations Catalogue Coverage</h2>
+            <span class="badge {% if report.meets_400_target %}bg-success{% else %}bg-warning text-dark{% endif %}">
+                Total Verified: {{ report.total_verified }} / 400+ Target
+            </span>
+        </div>
+        <div class="row g-3">
+            {% for ag in report.age_groups %}
+            <div class="col-md-6 col-xl-3">
+                <div class="border rounded-3 p-3 bg-light h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <strong>{{ ag.display_name }}</strong>
+                        <span class="badge {% if ag.meets_target %}bg-success{% else %}bg-secondary{% endif %}">
+                            {{ ag.count }} / {{ ag.target }}
+                        </span>
+                    </div>
+                    {% set pct = (ag.count * 100 / ag.target)|round(0)|int %}
+                    <div class="progress mb-2" style="height: 8px;">
+                        <div class="progress-bar bg-primary" style="width: {{ [pct, 100]|min }}%;"></div>
+                    </div>
+                    <div class="small text-muted">{{ ag.categories|length }} categories tracked</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="ol-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="h6 fw-bold mb-0">Recent Donations</h2>
+                    <a href="{{ url_for('admin.donations') }}" class="small">View All</a>
+                </div>
+                {% if recent_donations %}
+                <ul class="list-group list-group-flush">
+                    {% for d in recent_donations %}
+                    <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong class="small">{{ d.book_title }}</strong>
+                            <div class="small text-muted">by {{ d.donor_name }}</div>
+                        </div>
+                        <span class="badge bg-{{ 'success' if d.status == 'accepted' else 'danger' if d.status == 'rejected' else 'warning' }}">
+                            {{ d.status|title }}
+                        </span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="small text-muted mb-0">No donations submitted yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="ol-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="h6 fw-bold mb-0">Recently Added Books</h2>
+                    <a href="{{ url_for('admin.books') }}" class="small">View All</a>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for b in recent_books %}
+                    <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                        <div>
+                            <a href="{{ url_for('books.details', book_id=b.id) }}" class="fw-semibold small">{{ b.title }}</a>
+                            <div class="small text-muted">{{ b.author }} &middot; {{ b.source_repository }}</div>
+                        </div>
+                        <a href="{{ url_for('admin.edit_book', book_id=b.id) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

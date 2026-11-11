@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Access Restricted – OpenLib{% endblock %}
+{% block content %}
+<div class="container py-5 text-center">
+    <div class="ol-card p-5 mx-auto" style="max-width: 540px;">
+        <i class="bi bi-shield-exclamation display-3 text-warning"></i>
+        <h1 class="h3 mt-3 fw-bold">403 – Access Restricted</h1>
+        <p class="text-muted">You do not have permission to view this page.</p>
+        <a href="{{ url_for('main.index') }}" class="btn btn-openlib mt-2">Return to Homepage</a>
+    </div>
+</div>
+{% endblock %}
+

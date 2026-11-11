@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+{% from "_book_card.html" import render_book_card %}
+
+{% block title %}OpenLib – One Platform. Four Generations. Unlimited Knowledge.{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="ol-hero">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-7">
+                <span class="ol-tagline-pill mb-3">
+                    <i class="bi bi-sparkles"></i> {{ app_tagline }}
+                </span>
+                <h1 class="display-5 fw-bold mb-3" style="color: var(--ol-primary);">
+                    Knowledge Belongs to Everyone.
+                </h1>
+                <p class="lead text-muted mb-4">
+                    Discover, read and share knowledge through a library built for every generation.
+                </p>
+
+                <!-- Search Bar with Autocomplete -->
+                <form action="{{ url_for('books.search') }}" method="get" class="mb-4">
+                    <div class="ol-search-wrapper">
+                        <div class="input-group input-group-lg shadow-sm">
+                            <span class="input-group-text bg-white border-end-0 text-muted">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" name="q" class="form-control border-start-0"
+                                   placeholder="Search by book title, author, ISBN, or topic..."
+                                   aria-label="Search OpenLib catalogue"
+                                   data-search-autocomplete autocomplete="off">
+                            <button class="btn btn-openlib px-4" type="submit">Search</button>
+                        </div>
+                        <div class="ol-search-suggestions"></div>
+                    </div>
+                </form>
+
+                <!-- Primary Action Buttons -->
+                <div class="d-flex flex-wrap gap-3 align-items-center mb-4">
+                    <a href="{{ url_for('books.search') }}" class="btn btn-openlib btn-lg px-4">
+                        <i class="bi bi-compass me-2"></i>Explore Library
+                    </a>
+                    <a href="{{ url_for('main.donate') }}" class="btn btn-outline-secondary btn-lg px-4">
+                        <i class="bi bi-gift me-2"></i>Donate a Book
+                    </a>
+                </div>
+
+                <!-- Real Database Stats Strip -->
+                <div class="d-flex flex-wrap gap-4 pt-2 border-top small text-muted">
+                    <div><strong class="text-dark fs-5">{{ stats.total_books }}</strong> Verified Books</div>
+                    <div><strong class="text-dark fs-5">{{ stats.total_categories }}</strong> Categories</div>
+                    <div><strong class="text-dark fs-5">{{ stats.total_languages }}</strong> Languages</div>
+                    <div><strong class="text-dark fs-5">{{ stats.active_exchanges }}</strong> Exchange Offers</div>
+                </div>
+            </div>
+
+            <div class="col-lg-5 text-center">
+                <img src="{{ url_for('static', filename='images/hero_library.svg') }}"
+                     alt="OpenLib Four Generations Library" class="img-fluid rounded-4 shadow-sm">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Four Age-Group Library Cards -->
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex flex-wrap justify-content-between align-items-end mb-4 gap-2">
+            <div>
+                <h2 class="h3 fw-bold mb-1">Four Generation Libraries</h2>
+                <p class="text-muted mb-0">Age groups are friendly recommendations — every reader is welcome anywhere.</p>
+            </div>
+            <a href="{{ url_for('books.search') }}" class="btn btn-sm btn-outline-primary">View All {{ stats.total_books }} Books</a>
+        </div>
+
+        <div class="row g-4">
+            {% set gen_endpoints = {'children': 'children.index', 'youth': 'youth.index', 'adults': 'adults.index', 'seniors': 'seniors.index'} %}
+            {% for item in age_group_cards %}
+            {% set ag = item.group %}
+            <div class="col-md-6 col-xl-3">
+                <a href="{{ url_for(gen_endpoints[ag.slug]) }}" class="text-decoration-none text-dark d-block h-100">
+                    <div class="ol-card p-4 h-100 {{ ag.color_class }}-card">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <span class="rounded-3 d-inline-flex align-items-center justify-content-center text-white"
+                                  style="width:48px;height:48px;background-color:{{ ag.bg_color }};">
+                                <i class="bi {{ ag.icon }} fs-4"></i>
+                            </span>
+                            <span class="badge bg-light text-dark border">
+                                Ages {{ ag.min_age }}–{% if ag.max_age >= 100 %}+{% else %}{{ ag.max_age }}{% endif %}
+                            </span>
+                        </div>
+                        <h3 class="h5 fw-bold mb-2">{{ ag.display_name }}</h3>
+                        <p class="small text-muted mb-3">{{ ag.description }}</p>
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top small fw-semibold">
+                            <span style="color: {{ ag.bg_color }};">{{ item.book_count }} Verified Books</span>
+                            <span class="text-muted">{{ item.category_count }} Categories &rarr;</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Featured Books -->
+{% if featured_books %}
+<section class="py-5 bg-white border-top border-bottom">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="h3 fw-bold mb-1">Featured Books</h2>
+                <p class="text-muted mb-0">Editorially curated open-access and public-domain highlights.</p>
+            </div>
+            <a href="{{ url_for('books.search', sort='popular') }}" class="btn btn-sm btn-outline-secondary">Browse All</a>
+        </div>
+        <div class="row g-4">
+            {% for book in featured_books %}
+            <div class="col-6 col-md-4 col-lg-3">
+                {{ render_book_card(book) }}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Recently Added & Popular Books Tabs -->
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+            <div>
+                <h2 class="h3 fw-bold mb-1">Discover Our Collection</h2>
+                <p class="text-muted mb-0">Switch between our newest additions and community favourites.</p>
+            </div>
+            <ul class="nav nav-pills" id="bookTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="recent-tab" data-bs-toggle="pill" data-bs-target="#recent-pane" type="button" role="tab">
+                        <i class="bi bi-clock-history me-1"></i>Recently Added
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="popular-tab" data-bs-toggle="pill" data-bs-target="#popular-pane" type="button" role="tab">
+                        <i class="bi bi-fire me-1"></i>Popular Books
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="recent-pane" role="tabpanel">
+                <div class="row g-4">
+                    {% for book in recent_books %}
+                    <div class="col-6 col-md-4 col-lg-3">
+                        {{ render_book_card(book) }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="tab-pane fade" id="popular-pane" role="tabpanel">
+                <div class="row g-4">
+                    {% for book in popular_books %}
+                    <div class="col-6 col-md-4 col-lg-3">
+                        {{ render_book_card(book) }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Categories & Languages -->
+<section class="py-5 bg-white border-top border-bottom">
+    <div class="container">
+        <div class="row g-5">
+            <div class="col-lg-8">
+                <h2 class="h4 fw-bold mb-3">Browse by Category</h2>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for cat, ag, cnt in category_counts[:20] %}
+                    <a href="{{ url_for('books.search', age_group=ag.slug, category=cat.slug) }}" class="category-chip">
+                        <i class="bi {{ cat.icon }}"></i>
+                        <span>{{ cat.name }}</span>
+                        <span class="badge bg-light text-dark border">{{ cnt }}</span>
+                    </a>
+                    {% endfor %}
+                    <a href="{{ url_for('books.search') }}" class="category-chip">
+                        <i class="bi bi-grid"></i> All {{ stats.total_categories }} Categories
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <h2 class="h4 fw-bold mb-3">Languages Available</h2>
+                <div class="ol-card p-3">
+                    <div class="list-group list-group-flush">
+                        {% for lang, cnt in language_counts[:8] %}
+                        <a href="{{ url_for('books.search', language=lang) }}"
+                           class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-2">
+                            <span><i class="bi bi-translate me-2 text-primary"></i>{{ lang }}</span>
+                            <span class="badge rounded-pill bg-primary-subtle text-primary">{{ cnt }} books</span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About OpenLib & Community Exchange/Donation Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4 align-items-stretch">
+            <div class="col-lg-6">
+                <div class="ol-card p-4 h-100 d-flex flex-column">
+                    <span class="badge bg-primary-subtle text-primary align-self-start mb-2">About OpenLib</span>
+                    <h2 class="h4 fw-bold mb-3">Free, Verified &amp; Accessible Knowledge</h2>
+                    <p class="text-muted">
+                        OpenLib brings together verified public-domain works, open-educational textbooks, and community donations into one welcoming space for children, students, working adults, and senior citizens.
+                    </p>
+                    <p class="text-muted mb-4">
+                        Every book record documents its original repository, copyright status, and reading or download permissions respectfully.
+                    </p>
+                    <div class="mt-auto">
+                        <a href="{{ url_for('main.about') }}" class="btn btn-outline-primary">Read Our Mission</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="ol-card p-4 h-100 d-flex flex-column">
+                    <span class="badge bg-success-subtle text-success align-self-start mb-2">Community Book Sharing</span>
+                    <h2 class="h4 fw-bold mb-3">Donate &amp; Exchange With Readers Nearby</h2>
+                    <p class="text-muted">
+                        Have openly licensed ebooks or physical books gathering dust? Donate them to expand OpenLib or swap print books directly with fellow community readers.
+                    </p>
+                    <div class="d-flex flex-wrap gap-2 mt-auto">
+                        <a href="{{ url_for('main.exchange') }}" class="btn btn-openlib-accent">
+                            <i class="bi bi-arrow-left-right me-1"></i>Browse Exchanges ({{ stats.active_exchanges }})
+                        </a>
+                        <a href="{{ url_for('main.donate') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-gift me-1"></i>Donate a Book
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+

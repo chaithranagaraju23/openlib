@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Catalogue Import &amp; Reports – Admin – OpenLib{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+        <h1 class="h2 fw-bold mb-0">Catalogue Import, Validation &amp; Reports</h1>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('admin.export_json') }}" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-filetype-json me-1"></i>Export JSON
+            </a>
+            <a href="{{ url_for('admin.export_csv') }}" class="btn btn-sm btn-outline-success">
+                <i class="bi bi-filetype-csv me-1"></i>Export CSV
+            </a>
+        </div>
+    </div>
+
+    {% include "admin/_nav.html" %}
+
+    <div class="row g-4 mb-4">
+        <!-- Import Panel -->
+        <div class="col-lg-5">
+            <div class="ol-card p-4 h-100">
+                <h2 class="h5 fw-bold mb-3">Import Books (JSON / CSV)</h2>
+                <p class="small text-muted">
+                    Imports perform automatic duplicate detection (ISBN, source URL, Gutenberg ID, or Title+Author), metadata validation, and source URL format validation.
+                </p>
+                <form method="post" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.file.label(class="form-label fw-semibold") }}
+                        {{ form.file(class="form-control") }}
+                    </div>
+                    <div class="form-check mb-2">
+                        {{ form.update_duplicates(class="form-check-input") }}
+                        {{ form.update_duplicates.label(class="form-check-label small") }}
+                    </div>
+                    <div class="form-check mb-3">
+                        {{ form.verify_urls(class="form-check-input") }}
+                        {{ form.verify_urls.label(class="form-check-label small") }}
+                    </div>
+                    {{ form.submit(class="btn btn-openlib") }}
+                </form>
+
+                {% if import_result %}
+                <div class="mt-4 p-3 bg-light rounded border small">
+                    <strong>Last Import Report:</strong>
+                    <ul class="mb-0 mt-1">
+                        <li>Processed: {{ import_result.total_processed }}</li>
+                        <li>Imported: {{ import_result.imported }}</li>
+                        <li>Updated: {{ import_result.updated }}</li>
+                        <li>Duplicates Skipped: {{ import_result.skipped_duplicates }}</li>
+                        <li>Validation Errors: {{ import_result.errors|length }}</li>
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Audit Summary -->
+        <div class="col-lg-7">
+            <div class="ol-card p-4 h-100">
+                <h2 class="h5 fw-bold mb-3">Catalogue Quality &amp; Licensing Audit</h2>
+                <div class="row g-2 small mb-3">
+                    <div class="col-sm-6"><strong>Total Active Books:</strong> {{ report.total_active }}</div>
+                    <div class="col-sm-6"><strong>Total Verified Books:</strong> {{ report.total_verified }}</div>
+                    <div class="col-sm-6"><strong>Licence Verified:</strong> {{ report.licence_verified_count }}</div>
+                    <div class="col-sm-6"><strong>Online Readable:</strong> {{ report.readable_online_count }}</div>
+                    <div class="col-sm-6"><strong>Download Permitted:</strong> {{ report.downloadable_count }}</div>
+                    <div class="col-sm-6"><strong>Local Hosted PDFs:</strong> {{ report.local_pdf_count }}</div>
+                    <div class="col-sm-6"><strong>Invalid Source URLs:</strong> {{ report.invalid_url_count }}</div>
+                    <div class="col-sm-6"><strong>Missing ISBN (PD/Digital):</strong> {{ report.missing_isbn_count }}</div>
+                </div>
+
+                <h3 class="h6 fw-bold mt-3">By Copyright Status</h3>
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    {% for item in report.by_copyright %}
+                    <span class="badge bg-light text-dark border p-2">{{ item.status }}: {{ item.count }}</span>
+                    {% endfor %}
+                </div>
+
+                <h3 class="h6 fw-bold">By Language</h3>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for item in report.by_language %}
+                    <span class="badge bg-primary-subtle text-primary p-2">{{ item.language }}: {{ item.count }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Quota Breakdown -->
+    <div class="ol-card p-4">
+        <h2 class="h5 fw-bold mb-3">All 40 Categories Coverage Report</h2>
+        <div class="row g-4">
+            {% for ag in report.age_groups %}
+            <div class="col-md-6">
+                <h3 class="h6 fw-bold">{{ ag.display_name }} ({{ ag.count }} / {{ ag.target }})</h3>
+                <div class="table-responsive">
+                    <table class="table table-sm small mb-0">
+                        <thead>
+                            <tr><th>Category</th><th class="text-end">Actual</th><th class="text-end">Target</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for c in ag.categories %}
+                            <tr>
+                                <td>{{ c.name }}</td>
+                                <td class="text-end fw-semibold {% if c.meets_target %}text-success{% else %}text-warning{% endif %}">{{ c.count }}</td>
+                                <td class="text-end text-muted">{{ c.target }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+

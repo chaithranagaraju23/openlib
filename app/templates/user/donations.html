@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}My Book Donations – OpenLib{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2 fw-bold mb-0">My Book Donations</h1>
+        <a href="{{ url_for('main.donate') }}" class="btn btn-openlib"><i class="bi bi-gift me-1"></i>Donate Another Book</a>
+    </div>
+
+    {% if donations %}
+    <div class="ol-card p-3">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Title &amp; Author</th>
+                        <th>Type</th>
+                        <th>Licence</th>
+                        <th>Status</th>
+                        <th>Librarian Notes</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in donations %}
+                    <tr>
+                        <td><strong>{{ d.book_title }}</strong><div class="small text-muted">{{ d.book_author }}</div></td>
+                        <td>{{ 'Digital' if d.is_digital else 'Physical' }}</td>
+                        <td class="small">{{ d.licence }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if d.status == 'accepted' else 'danger' if d.status == 'rejected' else 'warning' }}">
+                                {{ d.status|title }}
+                            </span>
+                        </td>
+                        <td class="small text-muted">{{ d.admin_notes or 'Awaiting review' }}</td>
+                        <td class="small text-muted">{{ d.created_at|format_date }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="ol-card p-5 text-center">
+        <p class="text-muted mb-3">You have not submitted any book donations yet.</p>
+        <a href="{{ url_for('main.donate') }}" class="btn btn-openlib">Donate Your First Book</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

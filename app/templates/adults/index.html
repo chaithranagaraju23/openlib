@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% from "_generation_layout.html" import render_generation_page %}
+
+{% block title %}Adult Library (Ages 25–59) – OpenLib{% endblock %}
+
+{% block content %}
+{{ render_generation_page(
+    age_group=age_group,
+    categories_with_counts=categories_with_counts,
+    selected_category=selected_category,
+    books=books,
+    pagination=pagination,
+    total_in_section=total_in_section,
+    languages=languages,
+    q=q,
+    selected_language=selected_language,
+    sort_by=sort_by,
+    banner_class='theme-adults-banner',
+    card_class='theme-adults-card',
+    base_endpoint='adults.index',
+    cat_endpoint='adults.category'
+) }}
+{% endblock %}
+

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Manage Users – Admin – OpenLib{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="h2 fw-bold mb-3">Registered Library Members</h1>
+    {% include "admin/_nav.html" %}
+
+    <div class="ol-card p-3">
+        <div class="table-responsive">
+            <table class="table align-middle small mb-0">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Joined</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr>
+                        <td><strong>{{ u.full_name or u.username }}</strong><div class="text-muted">@{{ u.username }}</div></td>
+                        <td>{{ u.email }}</td>
+                        <td>
+                            <form method="post" action="{{ url_for('admin.update_user_role', user_id=u.id) }}" class="d-flex gap-1">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <select name="role" class="form-select form-select-sm" style="width: 120px;">
+                                    {% for r in ['user', 'moderator', 'admin'] %}
+                                    <option value="{{ r }}" {% if u.role == r %}selected{% endif %}>{{ r }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-outline-secondary">Save</button>
+                            </form>
+                        </td>
+                        <td><span class="badge bg-{{ 'success' if u.is_active else 'secondary' }}">{{ 'Active' if u.is_active else 'Inactive' }}</span></td>
+                        <td>{{ u.created_at|format_date }}</td>
+                        <td class="text-end">
+                            <form method="post" action="{{ url_for('admin.toggle_user_active', user_id=u.id) }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-sm btn-outline-warning">{{ 'Deactivate' if u.is_active else 'Activate' }}</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

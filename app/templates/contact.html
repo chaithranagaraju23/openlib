@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Contact Librarians – OpenLib{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row g-5">
+        <div class="col-lg-5">
+            <h1 class="h2 fw-bold mb-3">Contact Our Library Team</h1>
+            <p class="text-muted mb-4">
+                Have a question about book licensing, metadata corrections, donations, or community accessibility? Send us a message and our librarians will respond.
+            </p>
+            <div class="ol-card p-4">
+                <div class="d-flex align-items-start gap-3 mb-3">
+                    <i class="bi bi-envelope fs-4 text-primary"></i>
+                    <div>
+                        <div class="fw-semibold">Librarian Desk</div>
+                        <div class="small text-muted">admin@openlib.org</div>
+                    </div>
+                </div>
+                <div class="d-flex align-items-start gap-3 mb-3">
+                    <i class="bi bi-shield-check fs-4 text-success"></i>
+                    <div>
+                        <div class="fw-semibold">Copyright &amp; Takedown Reviews</div>
+                        <div class="small text-muted">All catalogue records follow verifiable public-domain, Creative Commons, or official lending terms.</div>
+                    </div>
+                </div>
+                <div class="d-flex align-items-start gap-3">
+                    <i class="bi bi-clock fs-4 text-warning"></i>
+                    <div>
+                        <div class="fw-semibold">Digital Access</div>
+                        <div class="small text-muted">Open 24/7 across all four generations.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="ol-card p-4 p-md-5">
+                <h2 class="h4 fw-bold mb-4">Send a Message</h2>
+                <form method="post" novalidate>
+                    {{ form.hidden_tag() }}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            {{ form.name.label(class="form-label fw-semibold") }}
+                            {{ form.name(class="form-control") }}
+                            {% for err in form.name.errors %}<div class="text-danger small mt-1">{{ err }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.email.label(class="form-label fw-semibold") }}
+                            {{ form.email(class="form-control") }}
+                            {% for err in form.email.errors %}<div class="text-danger small mt-1">{{ err }}</div>{% endfor %}
+                        </div>
+                        <div class="col-12">
+                            {{ form.subject.label(class="form-label fw-semibold") }}
+                            {{ form.subject(class="form-control") }}
+                            {% for err in form.subject.errors %}<div class="text-danger small mt-1">{{ err }}</div>{% endfor %}
+                        </div>
+                        <div class="col-12">
+                            {{ form.message.label(class="form-label fw-semibold") }}
+                            {{ form.message(class="form-control", rows=5) }}
+                            {% for err in form.message.errors %}<div class="text-danger small mt-1">{{ err }}</div>{% endfor %}
+                        </div>
+                        <div class="col-12">
+                            {{ form.submit(class="btn btn-openlib btn-lg px-4") }}
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

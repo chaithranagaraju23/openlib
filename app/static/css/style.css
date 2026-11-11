@@ -1,0 +1,490 @@
+/* OpenLib Design System - Clean, Accessible, Multi-Generational Digital Library */
+
+:root {
+    --ol-primary: #1E3A5F;
+    --ol-primary-dark: #142842;
+    --ol-teal: #0D9488;
+    --ol-amber: #D97706;
+    --ol-surface: #FAF9F6;
+    --ol-card: #FFFFFF;
+    --ol-border: #E2E8F0;
+    --ol-ink: #1F2937;
+    --ol-muted: #4B5563;
+    --ol-radius: 12px;
+    --ol-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+    --ol-shadow-hover: 0 10px 24px rgba(15, 23, 42, 0.09);
+
+    /* Generation accents */
+    --gen-children: #0284C7;
+    --gen-children-bg: #F0F9FF;
+    --gen-youth: #4F46E5;
+    --gen-youth-bg: #EEF2FF;
+    --gen-adults: #1E3A5F;
+    --gen-adults-bg: #F8FAFC;
+    --gen-seniors: #0F766E;
+    --gen-seniors-bg: #FFFBEB;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--ol-surface);
+    color: var(--ol-ink);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+h1, h2, h3, .font-serif {
+    font-family: 'Merriweather', Georgia, serif;
+}
+
+a {
+    color: var(--ol-primary);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--ol-teal);
+}
+
+/* Navbar */
+.ol-navbar {
+    background-color: #FFFFFF;
+    border-bottom: 1px solid var(--ol-border);
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.03);
+}
+
+.ol-navbar .navbar-brand {
+    font-family: 'Merriweather', Georgia, serif;
+    font-weight: 700;
+    color: var(--ol-primary);
+    letter-spacing: -0.02em;
+}
+
+.ol-navbar .nav-link {
+    font-weight: 500;
+    color: var(--ol-ink);
+    padding: 0.5rem 0.85rem;
+    border-radius: 8px;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.ol-navbar .nav-link:hover,
+.ol-navbar .nav-link.active {
+    background-color: #F1F5F9;
+    color: var(--ol-primary);
+}
+
+/* Hero */
+.ol-hero {
+    background-color: #FFFFFF;
+    border-bottom: 1px solid var(--ol-border);
+    padding: 3.5rem 0;
+}
+
+.ol-tagline-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #EFF6FF;
+    color: var(--ol-primary);
+    border: 1px solid #BFDBFE;
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+/* Search Bar & Suggestions */
+.ol-search-wrapper {
+    position: relative;
+}
+
+.ol-search-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #FFFFFF;
+    border: 1px solid var(--ol-border);
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+    z-index: 1050;
+    max-height: 360px;
+    overflow-y: auto;
+    display: none;
+}
+
+.ol-search-suggestions.show {
+    display: block;
+}
+
+.ol-suggestion-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid #F1F5F9;
+    color: var(--ol-ink);
+    transition: background-color 0.12s ease;
+}
+
+.ol-suggestion-item:hover,
+.ol-suggestion-item.active {
+    background-color: #F8FAFC;
+    color: var(--ol-primary);
+}
+
+/* Cards & Book Cards */
+.ol-card {
+    background: var(--ol-card);
+    border: 1px solid var(--ol-border);
+    border-radius: var(--ol-radius);
+    box-shadow: var(--ol-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ol-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--ol-shadow-hover);
+}
+
+.book-card {
+    background: #FFFFFF;
+    border: 1px solid var(--ol-border);
+    border-radius: var(--ol-radius);
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--ol-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.book-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--ol-shadow-hover);
+}
+
+.book-card-cover-wrap {
+    height: 220px;
+    background-color: #F1F5F9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+
+.book-card-cover-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.book-card-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.25rem 0.55rem;
+    border-radius: 6px;
+}
+
+.book-card-body {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+}
+
+.book-card-title {
+    font-family: 'Merriweather', Georgia, serif;
+    font-size: 0.98rem;
+    font-weight: 700;
+    line-height: 1.35;
+    margin-bottom: 0.35rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.book-card-author {
+    font-size: 0.85rem;
+    color: var(--ol-muted);
+    margin-bottom: 0.65rem;
+}
+
+.book-card-footer {
+    margin-top: auto;
+    padding-top: 0.75rem;
+    border-top: 1px solid #F1F5F9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Generation Hero & Theme Variants */
+.gen-banner {
+    border-bottom: 1px solid var(--ol-border);
+    padding: 2.5rem 0;
+}
+
+.theme-children-banner {
+    background-color: var(--gen-children-bg);
+    border-bottom-color: #BAE6FD;
+}
+
+.theme-children-card {
+    border-top: 4px solid var(--gen-children);
+}
+
+.theme-youth-banner {
+    background-color: var(--gen-youth-bg);
+    border-bottom-color: #C7D2FE;
+}
+
+.theme-youth-card {
+    border-top: 4px solid var(--gen-youth);
+}
+
+.theme-adults-banner {
+    background-color: var(--gen-adults-bg);
+    border-bottom-color: #CBD5E1;
+}
+
+.theme-adults-card {
+    border-top: 4px solid var(--gen-adults);
+}
+
+.theme-seniors-banner {
+    background-color: var(--gen-seniors-bg);
+    border-bottom-color: #FDE68A;
+}
+
+.theme-seniors-card {
+    border-top: 4px solid var(--gen-seniors);
+}
+
+/* Senior Citizens Enhanced Readability Section */
+.seniors-accessible-scope {
+    font-size: 1.125rem;
+}
+
+.seniors-accessible-scope .btn {
+    padding: 0.65rem 1.25rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+.seniors-accessible-scope .book-card-title {
+    font-size: 1.12rem;
+}
+
+/* Category Pills */
+.category-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.55rem 0.9rem;
+    border-radius: 10px;
+    background: #FFFFFF;
+    border: 1px solid var(--ol-border);
+    color: var(--ol-ink);
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.15s ease;
+}
+
+.category-chip:hover,
+.category-chip.active {
+    background: var(--ol-primary);
+    border-color: var(--ol-primary);
+    color: #FFFFFF;
+}
+
+.category-chip.active .badge {
+    background-color: rgba(255, 255, 255, 0.25) !important;
+    color: #FFFFFF !important;
+}
+
+/* Buttons */
+.btn-openlib {
+    background-color: var(--ol-primary);
+    border-color: var(--ol-primary);
+    color: #FFFFFF;
+    font-weight: 600;
+}
+
+.btn-openlib:hover {
+    background-color: var(--ol-primary-dark);
+    border-color: var(--ol-primary-dark);
+    color: #FFFFFF;
+}
+
+.btn-openlib-accent {
+    background-color: var(--ol-teal);
+    border-color: var(--ol-teal);
+    color: #FFFFFF;
+    font-weight: 600;
+}
+
+.btn-openlib-accent:hover {
+    background-color: #0F766E;
+    border-color: #0F766E;
+    color: #FFFFFF;
+}
+
+/* Online Reader */
+.reader-shell {
+    background: #F1F5F9;
+    border: 1px solid var(--ol-border);
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.reader-toolbar {
+    background: #FFFFFF;
+    border-bottom: 1px solid var(--ol-border);
+    padding: 0.75rem 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.reader-stage {
+    min-height: 620px;
+    max-height: 78vh;
+    overflow: auto;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #E2E8F0;
+}
+
+.reader-canvas-wrap {
+    background: #FFFFFF;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.16);
+    border-radius: 4px;
+}
+
+.reader-shell.night-mode .reader-toolbar {
+    background: #111827;
+    color: #F9FAFB;
+    border-color: #374151;
+}
+
+.reader-shell.night-mode .reader-stage {
+    background: #0B1120;
+}
+
+.reader-shell.night-mode #pdfCanvas {
+    filter: invert(0.9) hue-rotate(180deg);
+}
+
+.reader-shell.night-mode .text-reader-paper {
+    background: #1E293B;
+    color: #F1F5F9;
+    border-color: #334155;
+}
+
+.text-reader-paper {
+    background: #FFFFFF;
+    color: #1F2937;
+    max-width: 820px;
+    width: 100%;
+    padding: 2.5rem;
+    border-radius: 10px;
+    border: 1px solid var(--ol-border);
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.08);
+    white-space: pre-wrap;
+    line-height: 1.8;
+    font-family: 'Merriweather', Georgia, serif;
+}
+
+/* Global Accessibility Modes */
+body.a11y-large-text {
+    font-size: 1.18rem;
+}
+
+body.a11y-large-text .btn {
+    font-size: 1.08rem;
+    padding: 0.6rem 1.1rem;
+}
+
+body.a11y-high-contrast {
+    background-color: #000000 !important;
+    color: #FFFFFF !important;
+}
+
+body.a11y-high-contrast .ol-navbar,
+body.a11y-high-contrast .ol-hero,
+body.a11y-high-contrast .ol-card,
+body.a11y-high-contrast .book-card,
+body.a11y-high-contrast .card,
+body.a11y-high-contrast .category-chip,
+body.a11y-high-contrast .gen-banner,
+body.a11y-high-contrast .ol-footer {
+    background-color: #111111 !important;
+    color: #FFFFFF !important;
+    border-color: #FFD600 !important;
+}
+
+body.a11y-high-contrast a,
+body.a11y-high-contrast .nav-link,
+body.a11y-high-contrast .text-muted {
+    color: #FFE066 !important;
+}
+
+body.a11y-high-contrast .btn-openlib,
+body.a11y-high-contrast .btn-primary {
+    background-color: #FFD600 !important;
+    color: #000000 !important;
+    border-color: #FFD600 !important;
+}
+
+/* Footer */
+.ol-footer {
+    background-color: #111827;
+    color: #D1D5DB;
+    padding: 3rem 0 1.5rem;
+    margin-top: 4rem;
+}
+
+.ol-footer a {
+    color: #E5E7EB;
+}
+
+.ol-footer a:hover {
+    color: #FFFFFF;
+    text-decoration: underline;
+}
+
+/* Responsive tweaks */
+@media (max-width: 767.98px) {
+    .ol-hero {
+        padding: 2rem 0;
+    }
+    .book-card-cover-wrap {
+        height: 185px;
+    }
+    .reader-stage {
+        padding: 0.75rem;
+    }
+    .text-reader-paper {
+        padding: 1.25rem;
+    }
+}
+

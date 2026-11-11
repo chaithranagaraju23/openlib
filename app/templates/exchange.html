@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}Book Exchange Hub – OpenLib{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <span class="badge bg-info-subtle text-info mb-1">Peer-to-Peer Book Sharing</span>
+            <h1 class="h2 fw-bold mb-1">Community Book Exchange Hub</h1>
+            <p class="text-muted mb-0">Offer print books you have finished reading and discover titles shared by fellow readers.</p>
+        </div>
+        {% if current_user.is_authenticated %}
+        <button class="btn btn-openlib" type="button" data-bs-toggle="collapse" data-bs-target="#newListingCollapse">
+            <i class="bi bi-plus-circle me-1"></i>List a Book for Exchange
+        </button>
+        {% else %}
+        <a href="{{ url_for('auth.login', next=url_for('main.exchange')) }}" class="btn btn-openlib">
+            Sign In to List a Book
+        </a>
+        {% endif %}
+    </div>
+
+    {% if current_user.is_authenticated %}
+    <div class="collapse mb-4" id="newListingCollapse">
+        <div class="ol-card p-4">
+            <h2 class="h5 fw-bold mb-3">Publish a Book for Exchange</h2>
+            <form method="post">
+                {{ listing_form.hidden_tag() }}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        {{ listing_form.title.label(class="form-label fw-semibold") }}
+                        {{ listing_form.title(class="form-control") }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ listing_form.author.label(class="form-label fw-semibold") }}
+                        {{ listing_form.author(class="form-control") }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ listing_form.age_group_name.label(class="form-label fw-semibold") }}
+                        {{ listing_form.age_group_name(class="form-select") }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ listing_form.condition.label(class="form-label fw-semibold") }}
+                        {{ listing_form.condition(class="form-select") }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ listing_form.language.label(class="form-label fw-semibold") }}
+                        {{ listing_form.language(class="form-control") }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ listing_form.isbn.label(class="form-label fw-semibold") }}
+                        {{ listing_form.isbn(class="form-control") }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ listing_form.location.label(class="form-label fw-semibold") }}
+                        {{ listing_form.location(class="form-control", placeholder="City / Region") }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ listing_form.delivery_method.label(class="form-label fw-semibold") }}
+                        {{ listing_form.delivery_method(class="form-select") }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ listing_form.looking_for.label(class="form-label fw-semibold") }}
+                        {{ listing_form.looking_for(class="form-control", placeholder="Optional genres or titles wanted") }}
+                    </div>
+                    <div class="col-12">
+                        {{ listing_form.notes.label(class="form-label fw-semibold") }}
+                        {{ listing_form.notes(class="form-control", rows=2) }}
+                    </div>
+                    <div class="col-12">
+                        {{ listing_form.submit(class="btn btn-openlib-accent") }}
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Search & Filter Listings -->
+    <form method="get" class="ol-card p-3 mb-4">
+        <div class="row g-2 align-items-center">
+            <div class="col-md-5">
+                <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Search title, author, city, or wishlist...">
+            </div>
+            <div class="col-md-3">
+                <select name="age_group" class="form-select">
+                    <option value="">All Age Groups</option>
+                    {% for g in ['Children', 'Youth', 'Adults', 'Seniors'] %}
+                    <option value="{{ g }}" {% if age_filter == g %}selected{% endif %}>{{ g }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="condition" class="form-select">
+                    <option value="">Any Condition</option>
+                    {% for c in ['New', 'Like New', 'Good', 'Fair'] %}
+                    <option value="{{ c }}" {% if condition_filter == c %}selected{% endif %}>{{ c }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2 d-grid">
+                <button type="submit" class="btn btn-openlib">Filter</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Listings Grid -->
+    {% if listings %}
+    <div class="row g-4">
+        {% for item in listings %}
+        <div class="col-md-6 col-lg-4">
+            <div class="ol-card p-4 h-100 d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="badge bg-primary-subtle text-primary">{{ item.age_group_name }}</span>
+                    <span class="badge bg-success-subtle text-success">{{ item.condition }}</span>
+                </div>
+                <h3 class="h5 fw-bold mb-1">{{ item.title }}</h3>
+                <p class="small text-muted mb-2">by {{ item.author }}</p>
+                <div class="small text-muted mb-2">
+                    <i class="bi bi-geo-alt me-1"></i>{{ item.location }} &middot; {{ item.delivery_method }}
+                </div>
+                {% if item.looking_for %}
+                <p class="small bg-light p-2 rounded border mb-3">
+                    <strong>Looking for:</strong> {{ item.looking_for }}
+                </p>
+                {% endif %}
+                <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
+                    <span class="small text-muted">Shared by <strong>{{ item.owner.username }}</strong></span>
+                    {% if current_user.is_authenticated and item.user_id != current_user.id %}
+                    <a href="{{ url_for('books.request_exchange', listing_id=item.id) }}" class="btn btn-sm btn-openlib">
+                        Propose Swap
+                    </a>
+                    {% elif not current_user.is_authenticated %}
+                    <a href="{{ url_for('auth.login', next=url_for('main.exchange')) }}" class="btn btn-sm btn-outline-primary">
+                        Sign In to Swap
+                    </a>
+                    {% else %}
+                    <span class="badge bg-secondary">Your Listing</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="ol-card p-5 text-center">
+        <i class="bi bi-arrow-left-right display-4 text-muted"></i>
+        <h3 class="h5 mt-3">No exchange listings match your filter</h3>
+        <p class="text-muted">Try clearing your filters or list a book to start the exchange!</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

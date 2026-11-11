@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+{% from "_book_card.html" import render_book_card %}
+
+{% block title %}{{ book.title }} – OpenLib{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Home</a></li>
+            {% if book.age_group %}
+            <li class="breadcrumb-item">
+                <a href="{{ url_for(book.age_group.slug + '.index') }}">{{ book.age_group.display_name }}</a>
+            </li>
+            {% endif %}
+            {% if book.category %}
+            <li class="breadcrumb-item">
+                <a href="{{ url_for('books.search', category=book.category.slug) }}">{{ book.category.name }}</a>
+            </li>
+            {% endif %}
+            <li class="breadcrumb-item active" aria-current="page">{{ book.title }}</li>
+        </ol>
+    </nav>
+
+    <div class="ol-card p-4 p-lg-5 mb-5">
+        <div class="row g-4">
+            <div class="col-md-4 col-lg-3 text-center">
+                <img src="{{ book.get_cover_url() }}" alt="{{ book.title }} cover"
+                     class="img-fluid rounded-3 shadow-sm border mb-3"
+                     style="max-height: 360px; object-fit: cover;"
+                     onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/default_cover.svg') }}';">
+                <div class="small text-muted">Book ID: <strong>{{ book.get_display_id() }}</strong></div>
+            </div>
+
+            <div class="col-md-8 col-lg-9">
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                    {% if book.age_group %}
+                    <span class="badge bg-primary-subtle text-primary">
+                        {{ book.age_group.display_name }} (Recommended {{ book.min_age }}–{% if book.max_age >= 100 %}+{% else %}{{ book.max_age }}{% endif %} yrs)
+                    </span>
+                    {% endif %}
+                    {% if book.category %}
+                    <span class="badge bg-light text-dark border">{{ book.category.name }}</span>
+                    {% endif %}
+                    <span class="badge bg-info-subtle text-info">{{ book.language }}</span>
+                    {% if book.licence_verified %}
+                    <span class="badge bg-success-subtle text-success"><i class="bi bi-patch-check me-1"></i>Verified Licence</span>
+                    {% endif %}
+                </div>
+
+                <h1 class="h2 fw-bold mb-1">{{ book.title }}</h1>
+                <p class="fs-5 text-muted mb-3">by <strong>{{ book.author }}</strong></p>
+
+                <div class="d-flex flex-wrap align-items-center gap-3 mb-3 small">
+                    <span class="text-warning fw-semibold">
+                        <i class="bi bi-star-fill"></i>
+                        {% if book.review_count > 0 %}
+                            {{ '%.1f'|format(book.average_rating) }} ({{ book.review_count }} reviews)
+                        {% else %}
+                            No reviews yet
+                        {% endif %}
+                    </span>
+                    <span class="text-muted"><i class="bi bi-eye me-1"></i>{{ book.view_count }} views</span>
+                    <span class="text-muted"><i class="bi bi-book me-1"></i>{{ book.borrow_count }} borrows</span>
+                    {% if reading_progress %}
+                    <span class="badge bg-warning-subtle text-dark">
+                        Progress: Page {{ reading_progress.current_page }} ({{ '%.0f'|format(reading_progress.percentage) }}%)
+                    </span>
+                    {% endif %}
+                </div>
+
+                <!-- Primary Reader & Library Actions -->
+                <div class="d-flex flex-wrap gap-2 mb-4">
+                    {% if book.is_readable_online %}
+                    <a href="{{ url_for('books.read', book_id=book.id) }}" class="btn btn-openlib btn-lg">
+                        <i class="bi bi-book-half me-2"></i>Read Online
+                    </a>
+                    {% endif %}
+
+                    {% if book.is_downloadable %}
+                    <a href="{{ url_for('books.download', book_id=book.id) }}" class="btn btn-openlib-accent btn-lg">
+                        <i class="bi bi-download me-2"></i>Download Copy
+                    </a>
+                    {% endif %}
+
+                    {% if book.source_url %}
+                    <a href="{{ book.source_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary btn-lg">
+                        <i class="bi bi-box-arrow-up-right me-1"></i>Official Source
+                    </a>
+                    {% endif %}
+
+                    <button type="button" class="btn btn-outline-dark btn-lg" data-tts-target="#bookDescriptionText">
+                        <i class="bi bi-volume-up me-1"></i>Listen
+                    </button>
+                </div>
+
+                <!-- Borrow & Bookmark Row -->
+                <div class="d-flex flex-wrap gap-2 mb-4">
+                    {% if current_user.is_authenticated %}
+                        {% if active_borrow %}
+                        <form method="post" action="{{ url_for('books.return_book', book_id=book.id) }}" class="d-inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-success">
+                                <i class="bi bi-check2-circle me-1"></i>Borrowed (Due in {{ active_borrow.days_remaining() }}d) – Return
+                            </button>
+                        </form>
+                        <form method="post" action="{{ url_for('books.renew_book', book_id=book.id) }}" class="d-inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-outline-primary">Renew (+14d)</button>
+                        </form>
+                        {% elif book.is_borrowable %}
+                        <form method="post" action="{{ url_for('books.borrow', book_id=book.id) }}" class="d-inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-journal-plus me-1"></i>Borrow Book (14 Days)
+                            </button>
+                        </form>
+                        {% endif %}
+
+                        <form method="post" action="{{ url_for('books.toggle_bookmark', book_id=book.id) }}" class="d-inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm {% if is_bookmarked %}btn-warning{% else %}btn-outline-secondary{% endif %}">
+                                <i class="bi {% if is_bookmarked %}bi-bookmark-fill{% else %}bi-bookmark{% endif %} me-1"></i>
+                                {% if is_bookmarked %}Saved in Reading List{% else %}Bookmark Book{% endif %}
+                            </button>
+                        </form>
+                    {% else %}
+                        <a href="{{ url_for('auth.login', next=url_for('books.details', book_id=book.id)) }}" class="btn btn-sm btn-outline-primary">
+                            Sign in to Borrow, Bookmark, or Track Progress
+                        </a>
+                    {% endif %}
+                </div>
+
+                <!-- Description -->
+                <div class="mb-4">
+                    <h2 class="h6 fw-bold text-uppercase text-muted">Description</h2>
+                    <p id="bookDescriptionText" class="mb-0">{{ book.description }}</p>
+                </div>
+
+                <!-- Complete Verified Catalogue Metadata Table -->
+                <div class="bg-light rounded-3 p-3 border">
+                    <h2 class="h6 fw-bold mb-3">Verified Catalogue &amp; Licence Details</h2>
+                    <div class="row g-2 small">
+                        <div class="col-sm-6 col-md-4"><strong>Book ID:</strong> {{ book.get_display_id() }}</div>
+                        <div class="col-sm-6 col-md-4"><strong>Publisher:</strong> {{ book.publisher or 'Open Repository Edition' }}</div>
+                        <div class="col-sm-6 col-md-4"><strong>Publication Year:</strong> {{ book.publication_year or 'Historical / Unspecified' }}</div>
+                        <div class="col-sm-6 col-md-4"><strong>ISBN:</strong> {{ book.isbn or 'N/A (Public Domain / Digital)' }}</div>
+                        <div class="col-sm-6 col-md-4"><strong>Format:</strong> {{ book.file_format }}</div>
+                        <div class="col-sm-6 col-md-4"><strong>Date Added:</strong> {{ book.date_added|format_date }}</div>
+                        <div class="col-sm-6 col-md-4"><strong>Source Repository:</strong> {{ book.source_repository or 'Verified Source' }}</div>
+                        <div class="col-sm-6 col-md-4"><strong>Copyright Status:</strong> {{ book.copyright_status }}</div>
+                        <div class="col-sm-6 col-md-4">
+                            <strong>Download Permission:</strong>
+                            {% if book.is_downloadable %}Permitted{% else %}Read Online / Official Link Only{% endif %}
+                        </div>
+                        <div class="col-12 mt-2">
+                            <strong>Licence Information:</strong> {{ book.licence }}
+                            {% if book.licence_url %}
+                                (<a href="{{ book.licence_url }}" target="_blank" rel="noopener noreferrer">View Licence</a>)
+                            {% endif %}
+                        </div>
+                        {% if book.source_url %}
+                        <div class="col-12">
+                            <strong>Original Source URL:</strong>
+                            <a href="{{ book.source_url }}" target="_blank" rel="noopener noreferrer" class="text-break">{{ book.source_url }}</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reviews Section -->
+    <div class="row g-4 mb-5">
+        <div class="col-lg-5">
+            <div class="ol-card p-4">
+                <h2 class="h5 fw-bold mb-3">Rate &amp; Review This Book</h2>
+                {% if current_user.is_authenticated %}
+                <form method="post" action="{{ url_for('books.submit_review', book_id=book.id) }}">
+                    {{ review_form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ review_form.rating.label(class="form-label small fw-semibold") }}
+                        {{ review_form.rating(class="form-select") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ review_form.title.label(class="form-label small fw-semibold") }}
+                        {{ review_form.title(class="form-control", placeholder="Headline for your review") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ review_form.content.label(class="form-label small fw-semibold") }}
+                        {{ review_form.content(class="form-control", rows=3, placeholder="Share your thoughts with fellow readers...") }}
+                    </div>
+                    {{ review_form.submit(class="btn btn-openlib") }}
+                </form>
+                {% else %}
+                <p class="small text-muted mb-3">Sign in to share your review and rating with the OpenLib community.</p>
+                <a href="{{ url_for('auth.login', next=url_for('books.details', book_id=book.id)) }}" class="btn btn-outline-primary btn-sm">Sign In</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="ol-card p-4">
+                <h2 class="h5 fw-bold mb-3">Community Reviews ({{ reviews|length }})</h2>
+                {% if reviews %}
+                    <div class="d-grid gap-3">
+                        {% for rev in reviews %}
+                        <div class="border-bottom pb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <strong>{{ rev.title }}</strong>
+                                <span class="badge bg-warning-subtle text-dark">
+                                    <i class="bi bi-star-fill text-warning"></i> {{ rev.rating }}/5
+                                </span>
+                            </div>
+                            <p class="small mb-1">{{ rev.content }}</p>
+                            <div class="small text-muted">
+                                by {{ rev.user.full_name or rev.user.username }} &middot; {{ rev.created_at|format_date }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted small mb-0">No community reviews yet. Be the first to review this edition!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% if related_books %}
+    <div>
+        <h2 class="h4 fw-bold mb-3">You May Also Enjoy</h2>
+        <div class="row g-4">
+            {% for rb in related_books %}
+            <div class="col-6 col-md-3">
+                {{ render_book_card(rb) }}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

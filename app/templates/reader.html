@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block title %}Reading: {{ book.title }} – OpenLib Reader{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-3 px-lg-4 py-3">
+    <div id="readerConfig"
+         data-book-id="{{ book.id }}"
+         data-reader-mode="{{ reader_mode }}"
+         data-pdf-url="{{ pdf_source_url or '' }}"
+         data-initial-page="{{ progress.current_page if progress else 1 }}"
+         data-authenticated="{{ 'true' if current_user.is_authenticated else 'false' }}"
+         data-text-endpoint="{{ url_for('books.text_preview', book_id=book.id) }}">
+    </div>
+
+    <!-- Breadcrumb / Back Bar -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+        <div>
+            <a href="{{ url_for('books.details', book_id=book.id) }}" class="btn btn-sm btn-outline-secondary me-2">
+                <i class="bi bi-arrow-left me-1"></i>Back to Book Details
+            </a>
+            <span class="fw-bold">{{ book.title }}</span>
+            <span class="text-muted small ms-1">by {{ book.author }}</span>
+        </div>
+        <div class="d-flex align-items-center gap-2 small">
+            <span>Progress: <strong id="readingProgressPct">{{ '%.0f'|format(progress.percentage) if progress else '0' }}%</strong></span>
+            <div class="progress" style="width: 120px; height: 8px;">
+                <div id="readingProgressBar" class="progress-bar bg-success" role="progressbar"
+                     style="width: {{ progress.percentage if progress else 0 }}%;"
+                     aria-valuenow="{{ progress.percentage if progress else 0 }}" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <!-- Main Reader Area -->
+        <div class="col-lg-9">
+            <div id="readerShell" class="reader-shell {% if current_user.is_authenticated and current_user.night_mode %}night-mode{% endif %}">
+                <!-- Toolbar -->
+                <div class="reader-toolbar">
+                    <div class="d-flex align-items-center gap-1">
+                        <button type="button" id="prevPageBtn" class="btn btn-sm btn-outline-secondary" title="Previous Page">
+                            <i class="bi bi-chevron-left"></i> Prev
+                        </button>
+                        <div class="input-group input-group-sm" style="width: 130px;">
+                            <input type="number" id="pageNumInput" class="form-control text-center"
+                                   value="{{ progress.current_page if progress else 1 }}" min="1" aria-label="Page number">
+                            <span class="input-group-text">/ <span id="totalPagesSpan" class="ms-1">1</span></span>
+                        </div>
+                        <button type="button" id="nextPageBtn" class="btn btn-sm btn-outline-secondary" title="Next Page">
+                            Next <i class="bi bi-chevron-right"></i>
+                        </button>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-1 flex-wrap">
+                        <button type="button" id="zoomOutBtn" class="btn btn-sm btn-outline-secondary" title="Zoom Out">
+                            <i class="bi bi-zoom-out"></i>
+                        </button>
+                        <span id="zoomLevelSpan" class="small fw-semibold px-1">125%</span>
+                        <button type="button" id="zoomInBtn" class="btn btn-sm btn-outline-secondary" title="Zoom In">
+                            <i class="bi bi-zoom-in"></i>
+                        </button>
+                        <button type="button" id="zoomFitBtn" class="btn btn-sm btn-outline-secondary" title="Fit Width">
+                            Fit Width
+                        </button>
+                        <button type="button" id="fontDecreaseBtn" class="btn btn-sm btn-outline-secondary" title="Smaller Font">A-</button>
+                        <button type="button" id="fontIncreaseBtn" class="btn btn-sm btn-outline-secondary" title="Larger Font">A+</button>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-1">
+                        <button type="button" id="readerTtsPlay" class="btn btn-sm btn-outline-primary" title="Read Page Aloud">
+                            <i class="bi bi-volume-up me-1"></i>Speak
+                        </button>
+                        <button type="button" id="readerTtsStop" class="btn btn-sm btn-outline-secondary" title="Stop Reading Aloud">
+                            <i class="bi bi-stop-fill"></i>
+                        </button>
+                        <button type="button" id="nightModeBtn" class="btn btn-sm btn-outline-secondary" title="Night Mode">
+                            <i class="bi bi-moon-stars"></i> Night
+                        </button>
+                        <button type="button" id="fullscreenBtn" class="btn btn-sm btn-outline-secondary" title="Fullscreen">
+                            <i class="bi bi-arrows-fullscreen"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stage -->
+                <div id="readerStage" class="reader-stage">
+                    <div id="readerStatusMsg" class="alert alert-info py-2 px-3 small d-none"></div>
+
+                    {% if reader_mode == 'pdfjs' and pdf_source_url %}
+                    <div class="reader-canvas-wrap">
+                        <canvas id="pdfCanvas"></canvas>
+                    </div>
+                    {% endif %}
+
+                    <div id="textReaderPaper" class="text-reader-paper d-none"></div>
+
+                    <!-- Official Reading / Fallback Card -->
+                    <div id="externalFallbackCard" class="ol-card p-4 p-md-5 text-center my-4 {% if reader_mode == 'pdfjs' and pdf_source_url %}d-none{% endif %}" style="max-width: 680px;">
+                        <i class="bi bi-book-half display-4 text-primary mb-3"></i>
+                        <h2 class="h4 fw-bold mb-2">{{ book.title }}</h2>
+                        <p class="text-muted mb-3">
+                            <strong>Author:</strong> {{ book.author }} &middot;
+                            <strong>Source:</strong> {{ book.source_repository }} &middot;
+                            <strong>Licence:</strong> {{ book.licence }}
+                        </p>
+                        <p id="readerBookSummary" class="small text-muted mb-4">{{ book.description }}</p>
+
+                        <div class="d-flex flex-wrap justify-content-center gap-2">
+                            {% if book.gutenberg_id or (book.reading_url and book.reading_url.endswith('.txt')) %}
+                            <button type="button" id="loadTextPreviewBtn" class="btn btn-openlib">
+                                <i class="bi bi-file-text me-1"></i>Load Built-in Full Text Reader
+                            </button>
+                            {% endif %}
+                            {% if book.reading_url %}
+                            <a href="{{ book.reading_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-openlib-accent">
+                                <i class="bi bi-box-arrow-up-right me-1"></i>Open Official Reading Page
+                            </a>
+                            {% endif %}
+                            {% if book.source_url and book.source_url != book.reading_url %}
+                            <a href="{{ book.source_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary">
+                                Official Source Record
+                            </a>
+                            {% endif %}
+                        </div>
+                        <p class="small text-muted mt-3 mb-0">
+                            OpenLib links directly to official sources whenever publisher or lending rules do not allow third-party file redistribution.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bookmarks & Info Sidebar -->
+        <div class="col-lg-3">
+            <div class="ol-card p-3 mb-3">
+                <h2 class="h6 fw-bold mb-2"><i class="bi bi-bookmark-star me-1"></i>Page Bookmarks</h2>
+                {% if current_user.is_authenticated %}
+                <div class="input-group input-group-sm mb-2">
+                    <input type="text" id="bookmarkNoteInput" class="form-control" placeholder="Optional note for current page">
+                    <button type="button" id="addPageBookmarkBtn" class="btn btn-openlib">Save</button>
+                </div>
+                <div id="bookmarksList">
+                    {% if page_bookmarks %}
+                        {% for bm in page_bookmarks %}
+                        <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                            <span class="small fw-semibold">Page {{ bm.page_number }}</span>
+                            <span class="small text-muted">{{ bm.note }}</span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-muted small">No page bookmarks yet.</div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <p class="small text-muted mb-2">Sign in to save page bookmarks and sync your reading progress.</p>
+                <a href="{{ url_for('auth.login', next=url_for('books.read', book_id=book.id)) }}" class="btn btn-sm btn-outline-primary">Sign In</a>
+                {% endif %}
+            </div>
+
+            <div class="ol-card p-3">
+                <h2 class="h6 fw-bold mb-2"><i class="bi bi-info-circle me-1"></i>Edition Info</h2>
+                <ul class="list-unstyled small text-muted mb-0 d-grid gap-1">
+                    <li><strong>ID:</strong> {{ book.get_display_id() }}</li>
+                    <li><strong>Format:</strong> {{ book.file_format }}</li>
+                    <li><strong>Language:</strong> {{ book.language }}</li>
+                    <li><strong>Copyright:</strong> {{ book.copyright_status }}</li>
+                    <li><strong>Licence:</strong> {{ book.licence }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/pdfjs/pdf.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/reader.js') }}"></script>
+{% endblock %}
+

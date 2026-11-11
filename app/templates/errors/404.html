@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Page Not Found – OpenLib{% endblock %}
+{% block content %}
+<div class="container py-5 text-center">
+    <div class="ol-card p-5 mx-auto" style="max-width: 540px;">
+        <i class="bi bi-compass display-3 text-primary"></i>
+        <h1 class="h3 mt-3 fw-bold">404 – Page Not Found</h1>
+        <p class="text-muted">We could not find that shelf or page in OpenLib.</p>
+        <div class="d-flex justify-content-center gap-2 mt-3">
+            <a href="{{ url_for('main.index') }}" class="btn btn-openlib">Homepage</a>
+            <a href="{{ url_for('books.search') }}" class="btn btn-outline-secondary">Search Catalogue</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

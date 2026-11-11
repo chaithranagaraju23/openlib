@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% from "_generation_layout.html" import render_generation_page %}
+
+{% block title %}Children's Library (Ages 5–12) – OpenLib{% endblock %}
+
+{% block content %}
+{{ render_generation_page(
+    age_group=age_group,
+    categories_with_counts=categories_with_counts,
+    selected_category=selected_category,
+    books=books,
+    pagination=pagination,
+    total_in_section=total_in_section,
+    languages=languages,
+    q=q,
+    selected_language=selected_language,
+    sort_by=sort_by,
+    banner_class='theme-children-banner',
+    card_class='theme-children-card',
+    base_endpoint='children.index',
+    cat_endpoint='children.category',
+    is_children=true
+) }}
+{% endblock %}
+
