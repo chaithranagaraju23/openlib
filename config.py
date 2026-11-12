@@ -31,9 +31,15 @@ class Config:
     MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
     MAIL_PORT = int(os.environ.get('MAIL_PORT', 587))
     MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', 'true').lower() == 'true'
-    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+    MAIL_USE_SSL = os.environ.get('MAIL_USE_SSL', 'false').lower() == 'true'
+    MAIL_USERNAME = (os.environ.get('MAIL_USERNAME') or '').strip() or None
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    MAIL_DEFAULT_SENDER = os.environ.get('ADMIN_EMAIL', 'noreply@openlib.org')
+    MAIL_DEFAULT_SENDER = (
+        os.environ.get('MAIL_DEFAULT_SENDER')
+        or MAIL_USERNAME
+        or os.environ.get('ADMIN_EMAIL', 'noreply@openlib.org')
+    )
+    CONTACT_RECIPIENT_EMAIL = (os.environ.get('CONTACT_RECIPIENT_EMAIL') or '').strip() or None
 
     # Upload folders
     COVERS_FOLDER = os.path.join(basedir, 'app', 'static', 'covers')
@@ -75,6 +81,7 @@ class TestingConfig(Config):
     AUTO_SEED = False
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
     WTF_CSRF_ENABLED = False
+    MAIL_SUPPRESS_SEND = True
 
 
 class ProductionConfig(Config):

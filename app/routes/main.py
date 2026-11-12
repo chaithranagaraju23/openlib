@@ -8,6 +8,7 @@ from app.models.book import AgeGroup, Category, Book
 from app.models.user import User
 from app.models.transaction import Donation, ExchangeListing, ContactMessage, BorrowRecord
 from app.forms.book_forms import ContactForm, DonationForm, ExchangeListingForm
+from app.services.email_service import send_contact_notification
 from app.utils.helpers import save_book_pdf
 
 main_bp = Blueprint('main', __name__)
@@ -146,6 +147,7 @@ def contact():
         )
         db.session.add(msg)
         db.session.commit()
+        send_contact_notification(msg)
         flash('Thank you for contacting OpenLib! Your message has been received by our team.', 'success')
         return redirect(url_for('main.contact'))
 
